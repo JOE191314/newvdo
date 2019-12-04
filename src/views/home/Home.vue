@@ -97,7 +97,7 @@ export default {
       if(this.type!=-1 && this.level){
         // 原地址+类型
         requestURL=requestURL+"&level="+this.level;
-      }else if(this.level){
+      }else if(this.level!=0){
         requestURL=requestURL+"?level="+this.level;
       }
       //keyword 搜索关键词

@@ -17,8 +17,12 @@
         </ul>
       </div>
       <!-- 登录 -->
-      <div class="login">
-        <p><el-button type="text" @click="dialogVisibleLogin = true">{{loginData.status==200 ? loginData.data.data.username : 'Log In'}}</el-button></p>
+     <router-link tag="div" to="/archives" class="login" v-if="loginData.status==200">
+        <p><el-button type="text">{{ loginDataUsername }}</el-button></p>
+        <img src="~assets/images/index_login.png" alt="">
+     </router-link>
+      <div class="login" v-else>
+        <p><el-button type="text" @click="dialogVisibleLogin = true">Log In</el-button></p>
         <img src="~assets/images/index_login.png" alt="">
       </div>
       <!-- 语言控制 -->
@@ -99,26 +103,29 @@
               <input type="text" placeholder="请输入你的电邮" v-model="username">
             </div>
         <div class="checking">
-          <input type="text" placeholder="请输入验证码">
+          <input type="text" placeholder="请输入验证码" v-model="passwordCode">
           <button :class="{changeColor: right_email}" :disabled="!right_email" @click="passwordGetCode()">{{computeTime ? `已发送(${computeTime})` : '发送验证码至邮箱'}}</button>
         </div>
         <div class="Password">
             <img src="~assets/images/login/LOCK.png" alt="" class="lock">
-            <input type="Password" placeholder="请输入你的密码">
-            <img src="~assets/images/login/passwrordOpen.png" alt="" class="passwrordType">
-            <!-- <img src="~assets/images/login/passwrordClose.png" alt=""> -->
+            <input type="Password" placeholder="请输入你的密码" v-model="ForgetPasswordBefor" v-if="showForgetPassword">
+            <input type="text" placeholder="请输入你的密码" v-model="ForgetPasswordAfter" v-else>
+            <img src="~assets/images/login/passwrordOpen.png" alt="" class="passwrordType"@click="showForgetPassword=!showForgetPassword" v-if="showForgetPassword">
+            <img src="~assets/images/login/passwrordClose.png" alt=""class="passwrordType" v-else @click="showForgetPassword=!showForgetPassword">
         </div>
         <div class="Password">
             <img src="~assets/images/login/LOCK.png" alt="" class="lock">
-            <input type="Password" placeholder="请输入你的密码">
-            <img src="~assets/images/login/passwrordOpen.png" alt="" class="passwrordType">
-            <!-- <img src="~assets/images/login/passwrordClose.png" alt=""> -->
+            <input type="Password" placeholder="请输入你的密码" v-model="ForgetPasswordBefor" v-if="showForgetPassword">
+            <input type="text" placeholder="请输入你的密码" v-model="ForgetPasswordBefor" v-else>
+            <img src="~assets/images/login/passwrordOpen.png" alt="" class="passwrordType"@click="showForgetPassword=!showForgetPassword" v-if="showForgetPassword">
+            <img src="~assets/images/login/passwrordClose.png" alt=""class="passwrordType" v-else @click="showForgetPassword=!showForgetPassword">
         </div>
       </div>
       <p class="tips">6-16位，包含数字、字母、特殊符号</p>
-      <button class="password_submit" @click="ForgotPasswordAlertShow()">登录</button>
+      <button class="password_submit" @click="ForgotPasswordAlertShow()">确认</button>
       <div class="backlogin"><el-button type="text" @click="dialogVisibleLogin = true;dialogVisiblePassword=false">返回登录</el-button></div>
     </div>
+    <alertTip :alertText="alertText" v-if="showAlert" @closeTip="closeTip"></alertTip>
     </el-dialog>
     <!-- 注册成功 -->
      <el-dialog :visible.sync="dialogVisibleRegisterSuccessful" :lock-scroll="true" :center="true" :show-close="false" :top="'0'" width="0%">
@@ -138,6 +145,7 @@
 <script>
  import alertTip from "common/alertTip"
  import config from "@/config/index.js"
+ import localstorage from "@/tool/localstorage.js"
  import { MessageBox } from 'element-ui';
 //  import {reqregister} from '@/api'
  
@@ -167,7 +175,15 @@ export default {
       registerCheck: true,//注册条款显示状态
       registerApiMessage: '',//注册提交失败显示状态
       loginEmail: '',//登录邮箱
-      loginData: {},//登录后的返回值
+      loginData: {//登录后的返回值
+        status:0//登录状态
+        },
+      loginDataUsername: '',//登录后的返回值的邮箱
+      passwordCode: '',//找回密码验证码
+      ForgetPassworduserId: '',//找回密码验证码返回的userId
+      ForgetPasswordBefor: '',//找回密码输入新密码
+      ForgetPasswordAfter: '',//找回密码输入新密码
+      showForgetPassword: false,//找回密码页面显示密码
       
       
       
@@ -190,10 +206,15 @@ export default {
        this.axios.post(config.weburl+'/user/login?'+'password='+this.loginPwd+'&username='+this.loginEmail).then(res => {
           console.log(res.data.message);
           if(res.data.status==200){
-            this.loginData = res
-            this.showAlert = true
+            this.loginData = res;
+            this.loginDataUsername = res.data.data.username;
+
+            //使用localstorage保存登录状态
+            localstorage.set("loginData.status",this.loginData.status);
+            localstorage.set("loginDataUsername",this.loginDataUsername);
+            // this.showAlert = true
             // this.alertText = "恭喜，登录成功！";
-            this.dialogVisibleLogin = false
+            this.dialogVisibleLogin = false;
           }
 	      }).catch(error=>{
         // console.log("error:"+error.response.data.message);
@@ -203,7 +224,7 @@ export default {
         console.log(this.alertText )
       });
     },
-    // 找加密码倒计时
+    // 找回密码倒计时
     passwordGetCode(){
       // alert(1)
       if(!this.computeTime){
@@ -218,8 +239,12 @@ export default {
         //http:106.52.102.224:9084/app/user/sendRetrieveCode?username=a
         this.axios.post(config.weburl+'/user/sendRetrieveCode?'+'username='+this.username).then(res => {
           console.log(res);
+          console.log('id+'+res.data.data)
+          this.ForgetPassworduserId = res.data.data
+          console.log(this.ForgetPassworduserId);
           if(!res.status===0) {
             // 显示提示
+            
             // 停止计时
             if(this.computeTime) {
               this.computeTime = 0
@@ -265,12 +290,51 @@ export default {
       }
     },
     async ForgotPasswordAlertShow(){
-      const  {username, right_email,} = this
+      const  {username, right_email,passwordCode} = this
       if(!this.right_email){
         this.showAlert = true
         this.alertText = '邮箱必须输入'
         return false;
       }
+      if(!/^[a-zA-Z0-9]{6}$/.test(passwordCode)){
+        this.showAlert = true
+        this.alertText = '验证码必须是6位数字'
+        return false;
+      }
+      //密码必须输入
+      if(!this.ForgetPasswordBefor){
+        this.showAlert = true
+        this.alertText = '密码必须输入'
+        return false;
+      }
+      if(this.ForgetPasswordBefor != this.ForgetPasswordAfter){
+        this.showAlert = true
+        this.alertText = '密码输入不一致'
+        return false;
+      }
+      var obj=this;
+       //http:106.52.102.224:9084/app/user/retrievePassword?newPassword=123456aaaa&retrieveCode=gtkhrk&userId=2060
+      var pwdurl=config.weburl+'/user/retrievePassword?'+'newPassword='+this.ForgetPasswordBefor+'&retrieveCode='+this.passwordCode+'&userId='+this.ForgetPassworduserId;
+      console.log("url:"+pwdurl);
+      // return false;
+      this.axios.post(pwdurl).then(res => {
+        // this.registerApiMessage = res.data.message
+        console.log("res:"+res.data);
+        //注册成功
+         if(res.data.status==200){
+           console.log("res:"+res.data.message);
+          // obj.showAlert = true
+          // obj.alertText = res.data.message;
+          obj.dialogVisibleLogin = true;
+          obj.dialogVisiblePassword=false;
+         }
+      }).catch(function (error) {
+        // console.log("error:"+error.response.data.message);
+        //其余注册失败的情况
+        obj.showAlert = true
+        obj.alertText = error.response.data.message;
+      });
+      return false;
     },
     async alertShow(){
       const  {code, username, right_email, password ,registerCode,registerCheck,registerApiMessage} = this
@@ -313,13 +377,6 @@ export default {
           obj.dialogVisibleRegisterSuccessful = true;
           obj.dialogVisibleRegister=false;
          }
-
-        //其余注册失败的情况
-        //  if(res.data.status!=0){
-        //    this.showAlert = true
-        //     this.alertText = res.data.message;
-        //  }
-
       }).catch(function (error) {
         // console.log("error:"+error.response.data.message);
         //其余注册失败的情况
@@ -346,7 +403,17 @@ export default {
     }
   },
   mounted(){
-   
+  //  var name="331404948@qq.com";
+  //  var val=localstorage.get("email");
+  //  alert("val:"+val);
+  //  if(val){
+  //    alert(val)
+  //  }else{
+  //    localstorage.set("email",name);
+  //    alert("设置成功")
+  //  }
+  this.loginData.status=localstorage.get("loginData.status");
+  this.loginDataUsername=localstorage.get("loginDataUsername");
   }
 }
 </script>
@@ -434,7 +501,7 @@ export default {
  .passwordBox .form .Password{width: 323px;height: 45px;border: 1px solid #ccc;border-radius: 8px;position: relative;margin-top: 25px;}
  .passwordBox .form .Password .lock{position: absolute;left: 16px;top: 12px;width: 17px;height: 20px;}
  .passwordBox .form .Password input{width: 275px;height: 100%;display: block;border:none;outline: none;overflow: hidden;padding: 0 0 0 48px;border-radius: 8px;color: #333;font-size: 16px;}
- .passwordBox .form .Password .passwrordType{position: absolute;right: 18px;top: 16px;width: 23px;height: 16px;}
+ .passwordBox .form .Password .passwrordType{position: absolute;right: 18px;top: 16px;width: 24px;height: 16px;}
  .passwordBox .tips{font-size: 12px;color: #7f7f7f;margin: 0 0 0 50px;}
  .passwordBox .password_submit{width: 215px;height: 53px;border-radius: 26px;margin: 35px auto 25px auto;font-size: 22px;color: #fff;text-align: center;line-height: 53px;display: block;background:  #3cdfa5;border: none;outline: none;}
  .passwordBox .backlogin{font-size: 16px;color: #7f7f7f;text-align: center;}

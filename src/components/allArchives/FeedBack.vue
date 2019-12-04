@@ -8,12 +8,24 @@
         <textarea style="resize:none"></textarea>
         <div class="h3">上传附件（辅助说明）</div>
         <ul>
+          <!-- <input type="file" name="file" class="file" @change="uploadImg">
           <li><img src="~assets/images/archives_img/feek (2).png" alt=""></li>
           <li><img src="~assets/images/archives_img/feek (2).png" alt=""></li>
           <li><img src="~assets/images/archives_img/feek (2).png" alt=""></li>
           <li><img src="~assets/images/archives_img/feek (2).png" alt=""></li>
           <li><img src="~assets/images/archives_img/feek (2).png" alt=""></li>
-          <li><img src="~assets/images/archives_img/feek (1).png" alt=""></li>
+          <li ><img src="~assets/images/archives_img/feek (1).png" alt=""@click="uploadImg" ref="file"></li> -->
+          <el-upload
+          :action="uploadUrl"
+          list-type="picture-card"
+          :on-success="handleSuccess"
+          :on-preview="handlePictureCardPreview"
+          :on-remove="handleRemove">
+          <i class="el-icon-plus"></i>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible">
+          <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
         </ul>
 
       <div class="h3">联系方式（方便我们尽快为您解决问题）</div>
@@ -24,7 +36,51 @@
 </template>
 
 <script>
+import config from "@/config/index.js"
 export default {
+  data() {
+      return {
+        uploadUrl:config.weburl+'/feedback/upload/img',
+        dialogImageUrl: '',
+        dialogVisible: false,
+        imgFile:[]//上传附件（辅助说明）
+      };
+    },
+  methods: {
+    // uploadImg(){
+    //   // alert("uploadImg");
+    //   var formData = new window.FormData()
+    //   formData.append('file', document.querySelector('input[name=file]').files[0]);
+    //   var options = {  // 设置axios的参数
+    //      url: config.weburl+'/feedback/upload/img',
+    //      data: formData,
+    //      method: 'post',
+    //      headers: { 
+    //       'Content-Type': 'multipart/form-data'
+    //       }
+    //   }
+    //   this.axios(options).then(res=>{
+    //     console.log(res.data.data.fileUrl);
+    //   })
+    // },
+    handleSuccess(response, file, fileList){
+      console.log("imgfile:"+response.data.fileUrl);
+      this.imgFile.push(response.data.fileUrl);
+      // console.log("imgFile.push:"+this.imgFile[0]);
+      // for(var i=0;i<this.imgFile.length;i++){
+      //   console.log("imgFile["+i+"]:"+this.imgFile[i]);
+      // }
+      console.log(this.imgFile);
+
+    },
+    handleRemove(file, fileList) {
+        // console.log(file, fileList);
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    }
+  }
 }
 </script>
 

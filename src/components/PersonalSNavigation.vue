@@ -69,7 +69,7 @@ export default {
 .archives_subnav .tit .useinfoBoxThree .vipimg{width: 52px;height: 19px;background: url(~assets/images/archives_img/vipbg.png)no-repeat;font-size: 16px;color: #fff;line-height: 19px;text-align: center;float: left;}
 .archives_subnav .tit .useinfoBoxThree .date{font-size: 15px;line-height: 19px;height: 19px;width: 200px;overflow: hidden;margin: 0 0 0 22px;float: left;color: #fff;}
 .archives_subnav ul{float: left;width: 100%;margin: 50px 0 0 0;}
-.archives_subnav ul li{float: left;width: 324px;vertical-align: middle;height: 72px;padding: 0 0 0 20px;}
+.archives_subnav ul li{float: left;width: 324px;vertical-align: middle;height: 72px;padding: 0 0 0 20px;cursor: pointer;}
 .archives_subnav ul li.active{background: #24aa81;border-right: 9px solid #6bffd2;width: 315px;}
 .archives_subnav ul li img{float: left;margin: 18px 30px 0 0;width: 33px;height: 38px;}
 .archives_subnav ul li span{float: left;font-size: 20px;color: #fff;line-height: 72px;}

@@ -3,7 +3,7 @@
     <div class="list_nav">
       <div class="name">
         <span class="srot">SORT BY:</span>
-         <span  @click="type(-1)" :class="num==-1?'active':''">Recommendations</span>
+        <span @click="type(-1)" :class="num==-1?'active':''">Recommendations</span>
         <span  @click="type(1)" :class="num==1?'active':''">News</span>
         <span  @click="type(2)" :class="num==2?'active':''">Campus</span>
         <span  @click="type(3)" :class="num==3?'active':''">STEM</span>
@@ -52,16 +52,16 @@ export default {
       show: false,
       numLeve: '',
       options: [{
-          value: '1',
+          value: '0',
           label: 'ALL'
         }, {
-          value: '2',
+          value: '3',
           label: 'ABasicLL'
         }, {
-          value: '3',
+          value: '2',
           label: 'Intermediate'
         }, {
-          value: '4',
+          value: '1',
           label: 'Advanced'
         }],
         value: 'ALL'

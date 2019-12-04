@@ -1,12 +1,11 @@
 <template>
-  <div id="videos">
+  <div id="videos"style="margin:0;padding:0;overflow:hidden" scroll="no">
     <com-head></com-head>
     <tit :title="'HOME > Videos> D-Campus> Foreigners in Hong Kong - Oliver'"></tit>
     <div class="wrap">
-    <iframe>甲方负责h5部份</iframe>
+    <iframe  name="kkkk" src="" width="100%" height="100%" marginwidth="1" marginheight="1"    scrolling="yes" frameborder="0">甲方负责h5部份</iframe>
     </div>
-    <div class="wrap">相关视频</div>
-    <com-foot></com-foot>  
+    <!-- <com-foot></com-foot>   -->
   </div>
 </template>
 
@@ -29,5 +28,6 @@ export default {
 </script>
 
 <style scoped>
-h5{text-align: center;width: 1440px;height: 917px;background: #def7ee;margin: 0 auto;margin-top: 16px;line-height: 620px;font-size: 50px}
+.wrap{background: lightblue;}
+iframe{margin: 0;padding: 0;width: 100%;height: 800px;background: lightblue;}
 </style>

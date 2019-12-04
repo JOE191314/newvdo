@@ -6,13 +6,12 @@
           <ul>
             <li>
               <div class="left"><div class="h1"><h1>个人资料</h1></div></div>
-              <div class="right"><div class="btn bg">保存</div></div>
+              <div class="right"><div class="btn bg"  @click="keepSetUp">保存</div></div>
             </li>
             <li>
-              
               <div class="left"><div class="h1">姓名</div>
-                <input type="text" v-model="useName" v-if="inputUseName">
-                <span v-else>{{ useName }}</span>
+                <input type="text" v-model.lazy="useName" v-if="inputUseName">
+                <span v-else ref="domUseName">{{ useName }}</span>
               </div>
               <div class="right">
                 <div class="btn border" @click="inputUseName=!inputUseName" v-if="!inputUseName">编辑</div>
@@ -37,7 +36,7 @@
             <li>
               <div class="left"><div class="h1">生日</div>
                 <input type="text" v-model="birthday" v-if="inputBirthday">
-                <span v-else>{{ birthday }}</span>
+                <span v-else ref="domBirthday">{{ birthday }}</span>
               </div>
               <div class="right">
                   <div class="btn border"  @click="inputBirthday=!inputBirthday" v-if="!inputBirthday">编辑</div>
@@ -45,19 +44,19 @@
               </div>
             </li>
             <li>
-              <div class="left"><div class="h1">个人资料</div>
-                <input type="text" v-model="introduce" v-if="inputintroduce">
-                <span v-else>{{ introduce }}</span>
+              <div class="left"><div class="h1">学习目的</div>
+                <input type="text" v-model="purpose" v-if="inputpurpose">
+                <span v-else ref="dompurpose">{{ purpose }}</span>
               </div>
               <div class="right">
-                <div class="btn border"  @click="inputintroduce=!inputintroduce" v-if="!inputintroduce">编辑</div>
-                  <div class="btn bg"  @click="inputintroduce=!inputintroduce" v-else>保存</div>
+                <div class="btn border"  @click="inputpurpose=!inputpurpose" v-if="!inputpurpose">编辑</div>
+                  <div class="btn bg"  @click="inputpurpose=!inputpurpose" v-else>保存</div>
               </div>
             </li>
             <li>
               <div class="left"><div class="h1">个性签名</div>
                 <input type="text" v-model="signName" v-if="inputsignName">
-                <span v-else>{{ signName }}</span>
+                <span v-else ref="domSignName">{{ signName }}</span>
               </div>
               <div class="right">
                 <div class="btn border"  @click="inputsignName=!inputsignName" v-if="!inputsignName">编辑</div>
@@ -91,7 +90,11 @@
 </template>
 
 <script>
+import config from "@/config/index.js"
 export default {
+  porps: {
+
+  },
   data(){
     return {
       showSex: true,//显示男
@@ -99,29 +102,44 @@ export default {
       inputUseName: false,//编辑用户名
       birthday: '',//生日
       inputBirthday: false,//编辑生日
-      introduce: '',//学习简介
-      inputintroduce: false,//学习简介编辑
+      purpose: '',//学习简介
+      inputpurpose: false,//学习简介编辑
       signName: '',//修改签名
       inputsignName: false,//修改签名编辑
       changePassword: false,
+      useInfor: {},
+      innerHTML:'',
     }
   },
+  methods: {
+    keepSetUp(){
+      console.log(this.$refs.domBirthday.innerHTML)
+      this.useInfor = {
+        "birthday": (this.$refs.domBirthday.innerHTML),
+        "id": "2098",
+        "introduction": (this.$refs.domSignName.innerHTML),
+        "nickname": (this.$refs.domUseName.innerHTML),
+        "purpose": (this.$refs.dompurpose.innerHTML),
+        "sex": (this.showSex? '男': '女')
+      }
+      // config.weburl+'/user/sendRetrieveCode?'+'username='+this.username
+      this.axios.post(config.weburl+'/me/saveInformation',this.useInfor).then(res=>{
+        console.log(res)
+      })
+    }
+  },
+  computed: {
+    
+  },
   mounted(){
-    // document.addEventListener('click', (e) => {
-
-    //     if (!this.$refs.mbMenu.contains(e.target)) {
-
-    //     this.mb_menuVisible = false
-
-    // }
-
-    // })
+   //http:106.52.102.224:9084/app/me/saveInformation
+   
   }
 }
 </script>
 
 <style scoped>
-
+.radio{width: 20px;height: 20px;background: #53d2ac;display: block;}
 
 .content{margin: 38px 0 0 102px;box-shadow: 0 0 2px 2px rgba(100,100,100,0.2);float: left;width: 1024px;height: auto;}
 .content .con1{width: 1024px;height: 555px;border-bottom: 33px solid #f5f5f5;overflow: hidden;}

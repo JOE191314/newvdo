@@ -64,12 +64,12 @@
       </ul>
       <div class="clear"></div>
     </div>
-    <page @handleCurrentChange="handleCurrentChange" :pageSize="pages.limit" :count="pages.count" ></page>
+    <Page></Page>
   </div>
 </template>
 
 <script>
- import Page from 'common/Page'
+import Page from 'common/Page'
 export default {
   components: {
     Page
