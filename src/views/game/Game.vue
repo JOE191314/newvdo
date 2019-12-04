@@ -1,7 +1,7 @@
 <template>
   <div id="game">
     <com-head></com-head>
-    <div>game</div>
+    <div class="text">game</div>
   </div>
 </template>
 
@@ -15,5 +15,5 @@ export default {
 </script>
 
 <style scoped>
-
+.text{font-size: 40px;text-align: center;line-height: 50px}
 </style>

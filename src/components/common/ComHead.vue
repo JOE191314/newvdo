@@ -18,8 +18,8 @@
       </div>
       <!-- 登录 -->
       <div class="login">
+        <p><el-button type="text" @click="dialogVisibleLogin = true">{{loginData.status==200 ? loginData.data.data.username : 'Log In'}}</el-button></p>
         <img src="~assets/images/index_login.png" alt="">
-        <p><el-button type="text" @click="dialogVisibleLogin = true">Log In</el-button></p>
       </div>
       <!-- 语言控制 -->
       <div class="language">
@@ -41,7 +41,7 @@
         <div class="input">
           <div class="mailbox">
             <img src="~assets/images/login/loginMail.png" alt="">
-            <input type="text" placeholder="请输入你的电邮">
+            <input type="text" placeholder="请输入你的电邮" v-model="loginEmail">
           </div>
           <div class="Password">
             <img src="~assets/images/login/LOCK.png" alt="" class="lock">
@@ -51,9 +51,10 @@
             <img src="~assets/images/login/passwrordClose.png" alt=""class="passwrordType"v-else  @click="loginshow=!loginshow">
           </div>
         </div>
-        <button class="login_submit">登录</button>
+        <el-button type="text"class="login_submit" @click="dialogVisibleLoginSubmit()">登录</el-button>
         <div class="forgetPassword"><el-button type="text" @click="dialogVisiblePassword = true;dialogVisibleLogin=false">忘记密码</el-button></div>
       </div>
+      <alertTip :alertText="alertText" v-if="showAlert" @closeTip="closeTip"></alertTip>
     </el-dialog>
     
     <!-- 注册弹窗 -->
@@ -64,27 +65,29 @@
         <div class="registerForm">
             <div class="mailbox">
                 <img src="~assets/images/login/loginMail.png" alt="">
-                <input type="text" placeholder="请输入你的电邮" v-model="email">
+                <input type="text" placeholder="请输入你的电邮" v-model="username">
               </div>
           <div class="checking">
-            <input type="text" placeholder="请输入验证码">
+            <input type="text" placeholder="请输入验证码" v-model="registerCode" >
             <button :class="{changeColor: right_email}" :disabled="!right_email" @click="getCode">{{computeTime ? `已发送(${computeTime})` : '发送验证码至邮箱'}}</button>
           </div>
           <div class="Password">
-              <img src="~assets/images/login/LOCK.png" alt="" class="lock">
-              <input type="Password" placeholder="请输入你的密码" v-if="showPwd" v-model="pwd">
-              <input type="text" placeholder="请输入你的密码" v-else v-model="pwd">
+              <img src="~assets/images/login/LOCK.png" alt="" value="123" class="lock">
+              <input type="Password" placeholder="请输入你的密码" v-if="showPwd" v-model="password">
+              <input type="text" placeholder="请输入你的密码" v-else v-model="password">
               <img src="~assets/images/login/passwrordOpen.png" alt="" class="passwrordType" @click="showPwd=!showPwd" v-if="showPwd">
               <img src="~assets/images/login/passwrordClose.png" alt="" class="passwrordType" v-else @click="showPwd=!showPwd">
           </div>
         </div>
-        <div class="password_submit"><el-button type="text" @click="dialogVisibleRegisterSuccessful = true;dialogVisibleRegister=false" class="changeColor">创建我的账户</el-button></div>
+        <div class="password_submit"><el-button type="text" @click="alertShow()" class="changeColor"><div>创建我的账户</div></el-button></div>
         <div class="registrationTerms">
-          <input type="checkbox">
+          <img src="~assets/images/login/checkout.png" alt="" v-if="registerCheck" @click="registerCheck=!registerCheck">
+          <img src="~assets/images/login/check.png" alt=""  v-else   @click="registerCheck=!registerCheck">
           <div class="p">同意 <span>《注册条款》</span></div>
         </div>
         <div class="backlogin"><el-button type="text" @click="dialogVisibleLogin = true;dialogVisibleRegister=false">返回登录</el-button></div>
       </div>
+      <alertTip :alertText="alertText" v-if="showAlert" @closeTip="closeTip"></alertTip>
       </el-dialog>
   <!-- 忘记密码 -->
   <el-dialog :visible.sync="dialogVisiblePassword" :lock-scroll="true" :center="true" :show-close="false" :top="'0'" width="0%">
@@ -93,11 +96,11 @@
       <div class="form">
           <div class="mailbox">
               <img src="~assets/images/login/loginMail.png" alt="">
-              <input type="text" placeholder="请输入你的电邮">
+              <input type="text" placeholder="请输入你的电邮" v-model="username">
             </div>
         <div class="checking">
           <input type="text" placeholder="请输入验证码">
-          <button>发送验证码至邮箱</button>
+          <button :class="{changeColor: right_email}" :disabled="!right_email" @click="passwordGetCode()">{{computeTime ? `已发送(${computeTime})` : '发送验证码至邮箱'}}</button>
         </div>
         <div class="Password">
             <img src="~assets/images/login/LOCK.png" alt="" class="lock">
@@ -113,7 +116,7 @@
         </div>
       </div>
       <p class="tips">6-16位，包含数字、字母、特殊符号</p>
-      <button class="password_submit">登录</button>
+      <button class="password_submit" @click="ForgotPasswordAlertShow()">登录</button>
       <div class="backlogin"><el-button type="text" @click="dialogVisibleLogin = true;dialogVisiblePassword=false">返回登录</el-button></div>
     </div>
     </el-dialog>
@@ -127,77 +130,223 @@
         </div>
       </div>
     </el-dialog>
+    
   </div>
  
 </template>
 
 <script>
+ import alertTip from "common/alertTip"
  import config from "@/config/index.js"
  import { MessageBox } from 'element-ui';
+//  import {reqregister} from '@/api'
+ 
 
 export default {
+  components: {
+    alertTip,
+  },
   data(){
     return {
-      keyword: '',
-      dialogVisibleLogin: false,
-      dialogVisibleRegister: false,
-      dialogVisibleRegisterSuccessful: false,
-      dialogVisiblePassword: false,
-      email: '',
-      computeTime: 0,
-      showPwd: false,
-      pwd: '',
-      loginshow: false,
-      loginPwd: '',
-      // searchList:[1,2] ,//没有数据
-      // x: 1
+      keyword: '',//搜索框
+      dialogVisibleLogin: false,//登录
+      dialogVisibleRegister: false,//注册
+      dialogVisibleRegisterSuccessful: false,//注册成功
+      dialogVisiblePassword: false,//忘记密码
+      // dialogVisibleLoginSubmit: '',
+      username: '',//邮箱输入
+      registerCode: '',//注册验证码输入
+      computeTime: 0,//验证码倒计时
+      showPwd: false,//注册页面显示密码
+      password: '',//注册页面输入密码
+      code: '',//注册页面验证码
+      alertText: '',//提示文本
+      showAlert: false,//是否显示提示框
+      loginshow: false,//登录页面隐藏
+      loginPwd: '',//登录页面输入密码
+      registerCheck: true,//注册条款显示状态
+      registerApiMessage: '',//注册提交失败显示状态
+      loginEmail: '',//登录邮箱
+      loginData: {},//登录后的返回值
+      
+      
+      
+      
     }
   },
   created(){
-    // this.message()
+
+   
   },
   methods: {
+    // 发射搜索事件到home
     keywordChange(){
-      // alert(keyword);
       console.log("keyword:"+this.keyword);
       this.$emit('keywordChange', this.keyword);
     },
+    // 登录接口
+    dialogVisibleLoginSubmit(){
+     // http:106.52.102.224:9084/app/user/login?password=123&username=aaa
+       this.axios.post(config.weburl+'/user/login?'+'password='+this.loginPwd+'&username='+this.loginEmail).then(res => {
+          console.log(res.data.message);
+          if(res.data.status==200){
+            this.loginData = res
+            this.showAlert = true
+            // this.alertText = "恭喜，登录成功！";
+            this.dialogVisibleLogin = false
+          }
+	      }).catch(error=>{
+        // console.log("error:"+error.response.data.message);
+        //其余注册失败的情况
+        this.showAlert = true
+        this.alertText = error.response.data.message;
+        console.log(this.alertText )
+      });
+    },
+    // 找加密码倒计时
+    passwordGetCode(){
+      // alert(1)
+      if(!this.computeTime){
+        this.computeTime = 60
+        this.intervalId = setInterval(() => {
+        this.computeTime--
+          if(this.computeTime <= 0){
+            clearInterval(this.intervalId)
+          }
+        },1000)
+        var obj=this;
+        //http:106.52.102.224:9084/app/user/sendRetrieveCode?username=a
+        this.axios.post(config.weburl+'/user/sendRetrieveCode?'+'username='+this.username).then(res => {
+          console.log(res);
+          if(!res.status===0) {
+            // 显示提示
+            // 停止计时
+            if(this.computeTime) {
+              this.computeTime = 0
+              clearInterval(this.intervalId)
+              this.intervalId = undefined
+            }
+          }
+	      }).catch(function (error) {
+        //其余注册失败的情况
+        obj.showAlert = true
+        obj.alertText = error.response.data.message;
+      });
+      }
+    },
+    // 验证码倒计时
     getCode(){
       // alert(1)
       if(!this.computeTime){
         this.computeTime = 60
-        const intervalId = setInterval(() => {
+        this.intervalId = setInterval(() => {
         this.computeTime--
           if(this.computeTime <= 0){
-            clearInterval(intervalId)
+            clearInterval(this.intervalId)
           }
         },1000)
+        var obj=this;
+        this.axios.post(config.weburl+'/user/sendCode?'+'username='+this.username).then(res => {
+          console.log(res);
+          if(!res.status===0) {
+            // 显示提示
+            // 停止计时
+            if(this.computeTime) {
+              this.computeTime = 0
+              clearInterval(this.intervalId)
+              this.intervalId = undefined
+            }
+          }
+	      }).catch(function (error) {
+        //其余注册失败的情况
+        obj.showAlert = true
+        obj.alertText = error.response.data.message;
+      });
       }
+    },
+    async ForgotPasswordAlertShow(){
+      const  {username, right_email,} = this
+      if(!this.right_email){
+        this.showAlert = true
+        this.alertText = '邮箱必须输入'
+        return false;
+      }
+    },
+    async alertShow(){
+      const  {code, username, right_email, password ,registerCode,registerCheck,registerApiMessage} = this
+      
+      //邮箱必须输入
+      if(!this.right_email){
+        this.showAlert = true
+        this.alertText = '邮箱必须输入'
+        return false;
+      }
+      if(!/^[a-zA-Z0-9]{6}$/.test(registerCode)){
+        this.showAlert = true
+        this.alertText = '验证码必须是6位数字'
+        return false;
+      }
+      //密码必须输入
+      if(!this.password){
+        this.showAlert = true
+        this.alertText = '密码必须输入'
+        return false;
+      }
+      //必须同意《注册条款》
+      if(this.registerCheck){
+        this.showAlert = true
+        this.alertText = '必须同意《注册条款》'
+        return false;
+      }
+      var obj=this;
+      var url=config.weburl+'/user/register?'+'password='+this.password+'&registerCode='+this.registerCode+'&username='+this.username;
+      console.log("url:"+url);
+      // return false;
+      this.axios.post(url).then(res => {
+        // this.registerApiMessage = res.data.message
+        // console.log("res:"+res.data);
+        //注册成功
+         if(res.data.status==200){
+          //  console.log("res:"+res.data.message);
+          // obj.showAlert = true
+          // obj.alertText = res.data.message;
+          obj.dialogVisibleRegisterSuccessful = true;
+          obj.dialogVisibleRegister=false;
+         }
+
+        //其余注册失败的情况
+        //  if(res.data.status!=0){
+        //    this.showAlert = true
+        //     this.alertText = res.data.message;
+        //  }
+
+      }).catch(function (error) {
+        // console.log("error:"+error.response.data.message);
+        //其余注册失败的情况
+        obj.showAlert = true
+        obj.alertText = error.response.data.message;
+      });
+      return false;
+      obj.dialogVisibleRegisterSuccessful = true;
+      obj.dialogVisibleRegister=false;
+      
+    },
+    closeTip(){
+      this.showAlert = false
+    },
+    // 创建账户
+    createAccount(){
+
     }
   },
-   
-  // watch: {
-  //   message:{
-  //     handler (newValue) {
-  //     // console.log(value)
-  //     this.axios.get(config.weburl+'/videos/searchTitle/'+newValue).then((res)=>{
-  //       var message = res.data.message
-  //       if(message){
-  //         // console.log(res.data.data)
-  //         this.searchList = res.data.data
-  //         console.log(this.searchList)//有数据 
-  //       }
-  //     })
-  //   },
-  //   deep: true,
-  //   immediate: true
-  // }
-  // },
   computed: {
     right_email(){
-      return /^1\d{10}$/.test(this.email);/*邮箱不区分大小写*/
+      return /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(this.username);/*邮箱不区分大小写*/
       
     }
+  },
+  mounted(){
+   
   }
 }
 </script>
@@ -214,14 +363,14 @@ export default {
 .g_head .nav ul{float: left;}
 .g_head .nav ul li{float: left;padding: 0 9px;margin: 0 10px;line-height: 83px;font-size: 18px;color: #231815;cursor: pointer;}
 .g_head .nav ul li.router-link-active{border-top: 7px solid #3cdfa5;line-height: 70px;color: #3cdfa5;}
-.g_head .language{line-height: 83px;font-size: 18px;color: #5c5452;cursor: pointer;float: right;}
+.g_head .language{line-height: 83px;font-size: 18px;color: #5c5452;cursor: pointer;float: left;margin: 0 0 0 40px}
 .g_head .language em{margin: 0 5px;}
 .g_head .language .en{color: #45a25d;}
 .g_head .language .numerous{color: #231815;}
 .g_head .language .simple{color: #231815;}
-.g_head .login{margin: 33px 0 0 40px;float: right;cursor: pointer;}
-.g_head .login img{width: 11px;height: 17px;float: left;margin: 0 10px 0 0;}
-.g_head .login p{font-size: 17px;color: #303030;float: left;margin: -10px 0 0 0;}
+.g_head .login{margin: 33px 0 0 0;float: right;cursor: pointer;width: 120px;}
+.g_head .login img{width: 11px;height: 17px;float: right;margin: 0 10px 0 0;}
+.g_head .login p{font-size: 17px;color: #303030;float: right;margin: -10px 0 0 0;max-width: 98px;text-align: right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height: 32px;}
 
 
 /* 登录 */
@@ -245,7 +394,7 @@ export default {
 .loginBox .input .Password .lock{position: absolute;left: 16px;top: 12px;width: 17px;height: 20px;}
 .loginBox .input .Password input{width: 275px;height: 100%;display: block;border:none;outline: none;overflow: hidden;padding: 0 0 0 48px;border-radius: 8px;color: #333;font-size: 16px;}
 .loginBox .input .Password .passwrordType{position: absolute;right: 18px;top: 16px;width: 24px;height: 16px;}
-.loginBox .login_submit{width: 215px;height: 53px;border-radius: 26px;margin: 0 auto 30px auto;font-size: 22px;color: #fff;text-align: center;line-height: 53px;display: block;background:  #3cdfa5;border: none;outline: none;}
+.loginBox .login_submit{width: 215px;height: 53px;border-radius: 26px;margin: 0 auto 30px auto;font-size: 22px;color: #fff;text-align: center;line-height: 30px;display: block;background:  #3cdfa5;border: none;outline: none;}
 .loginBox .forgetPassword{font-size: 16px;color: #7f7f7f;text-align: center;}
 /* 注册 */
 .registerBox{width: 323px;height: 480px;background: #fff;border-radius: 10px;margin: 50px 0 0 -220px;position: relative;padding: 105px 54px 0 54px;}
@@ -267,7 +416,7 @@ export default {
 .registerBox .password_submit{width: 215px;height: 53px;border-radius: 26px;margin: 32px auto 33px auto;font-size: 22px;color: #fff;text-align: center;line-height: 53px;display: block;background:  #3cdfa5;border: none;outline: none;}
 .registerBox .password_submit .changeColor{color: #fff;font-size: 17px;}
 .registerBox .registrationTerms{width: 125px;height: 22px;margin: 0 auto 20px auto;}
-.registerBox .registrationTerms input{width: 20px;height: 20px;background: #3cdfa5;float: left;outline: none;border-radius: 50%;border:none;}
+.registerBox .registrationTerms img{width: 20px;height: 20px;background: #3cdfa5;float: left;outline: none;border-radius: 50%;border:none;}
 .registerBox .registrationTerms .p{font-size: 12px;color: #7f7f7f;float: right;}
 .registerBox .registrationTerms .p span{color: #3686ff;}
 .registerBox .backlogin{font-size: 16px;color: #7f7f7f;text-align: center;}
@@ -281,6 +430,7 @@ export default {
  .passwordBox .form .checking{margin-top: 25px;overflow: hidden;clear: both;}
  .passwordBox .form .checking input{float: left;width: 160px;height: 46px;border: 1px solid #ccc;border-radius: 8px;line-height: 46px;color: #333;text-align: center;outline: none;}
  .passwordBox .form .checking button{float: right;font-size: 16px;color: #9a9a9a;text-align: center;line-height: 45px;height: 45px;width: 143px;background: #d2d2d2;font-size: 13px;border-radius: 23px;border: none}
+ .passwordBox .form .checking button.changeColor{color: #000;}
  .passwordBox .form .Password{width: 323px;height: 45px;border: 1px solid #ccc;border-radius: 8px;position: relative;margin-top: 25px;}
  .passwordBox .form .Password .lock{position: absolute;left: 16px;top: 12px;width: 17px;height: 20px;}
  .passwordBox .form .Password input{width: 275px;height: 100%;display: block;border:none;outline: none;overflow: hidden;padding: 0 0 0 48px;border-radius: 8px;color: #333;font-size: 16px;}
@@ -296,4 +446,6 @@ export default {
  .registerSuccess .img img{display: block;width: 135px;height: 141px;margin: 0 auto;}
  .registerSuccess .successbtn{width: 236px;height: 59px;border-radius: 26px;margin: 0 auto -15px auto;font-size: 22px;color: #fff;text-align: center;line-height: 53px;display: block;background:  #3cdfa5;border: none;outline: none;position: absolute;left: 0;bottom: 0;}
  .registerSuccess .successbtn .changeColor{color: #fff;font-size: 17px;}
+
+
 </style>

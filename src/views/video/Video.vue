@@ -7,7 +7,7 @@
     <video-list :video-lists="VideoLists"></video-list>
     <page @handleCurrentChange="handleCurrentChange" :pageSize="pages.limit" :count="pages.count" ></page>
     <com-foot></com-foot>
-    <router-view></router-view>  
+    
   </div>
 </template>
 

@@ -10,11 +10,11 @@ VueRouter.prototype.push = function push(location) {
 }
 
 const Home = () => import('views/home/Home')
-const Login = () => import('views/home/Login')
 const Video = () => import('views/video/Video')
 const PandaChallenge = () => import('views/pandaChallenge/PandaChallenge')
 const Game = () => import('views/game/Game')
 const About = () => import('views/about/About')
+const Archives = () => import('views/archives/Archives')
 
 Vue.use(VueRouter)
 
@@ -26,12 +26,6 @@ const routes = [
   {
     path: '/home',
     component: Home,
-    children: [
-      {
-        path: 'login',
-        component: Login
-      }
-    ]
   },
   {
     path: '/video',
@@ -48,6 +42,10 @@ const routes = [
   {
     path: '/about',
     component: About
+  },
+  {
+    path: '/archives',
+    component: Archives
   },
 ]
 

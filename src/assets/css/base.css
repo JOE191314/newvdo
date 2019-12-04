@@ -1,6 +1,6 @@
 /* reset */
 *{ margin:0; padding:0;}
-html,body{ font-size:12px; color:#333; font-family:Arial,"微软雅黑","宋体"; background: #000; overflow: hidden;}
+html,body{ font-size:12px; color:#333; font-family:Arial,"微软雅黑","宋体";}
 ul,li,dl,dt,dd,p,table,td,th{ list-style:none;}
 a{ color:#444; text-decoration:none;outline:none;}
 a:hover{ text-decoration:none;}

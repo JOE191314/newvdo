@@ -2,35 +2,10 @@
   <div id="videos">
     <com-head ref="messageTitle" @keywordChange="keywordChange" ></com-head>
     <tit :title="'HOME > Videos'"></tit>
-    <!-- <list-nav :hanld-type="hanldType"></list-nav> -->
-    <!-- 首页分类展示 -->
-    <div class="wrap w1230">
-      <div class="list_nav">
-        <div class="name">
-          <span class="srot">SORT BY:</span>
-          <span  @click="sortByType(-1)" :class="type==-1?'active':''">Recommendations</span>
-          <span  @click="sortByType(1)" :class="type==1?'active':''">News</span>
-          <span  @click="sortByType(2)" :class="type==2?'active':''">Campus</span>
-          <span  @click="sortByType(3)" :class="type==3?'active':''">STEM</span>
-          <span  @click="sortByType(4)" :class="type==4?'active':''">Culture</span>
-          <span  @click="sortByType(5)" :class="type==5?'active':''">Workplace</span>
-          <span  @click="sortByType(6)" :class="type==6?'active':''">Entertainment</span>
-        </div>
-        <div class="all">
-          <select>
-            <option value="video">1233</option>
-            <option value="video">faf</option>
-            <option value="video">ewrq</option>
-            <option value="video">选项呀</option>
-          </select>
-        </div>
-        <div class="clear"></div>
-      </div>
-    </div>
+    <list-nav @hanldType="hanldType" @hanldLevel="hanldLevel"></list-nav>
     <video-list :video-lists="VideoLists"></video-list>
     <page @handleCurrentChange="handleCurrentChange" :pageSize="pages.limit" :count="pages.count" ></page>
-    <com-foot></com-foot>
-    <router-view></router-view>    
+    <com-foot></com-foot>  
   </div>
 </template>
 
@@ -68,15 +43,18 @@ export default {
       type:-1,//type -1推荐(默认) 1新闻 2校园 3科学 4文化 5职场 6娱乐
       // messageTitles:'',
       keyword:"",//搜索关键词
+      level: '',//难度选择
     }
   },
   methods: {
+    // 分页
     handleCurrentChange(val){
       // alert(val);
       this.pages.pageNo = val;
       this.keyword="";
       this.loadList();
     },
+    // 搜索
     keywordChange(word){
       // alert(val);
       this.keyword=word;
@@ -85,11 +63,18 @@ export default {
       this.loadList();
       // console.log("videolist:"+keyword);
     },
-    sortByType(num){
+    // 分类型
+    hanldType(num){
         this.type = num;
         // alert(this.type);
         this.keyword="";
         this.loadList();
+    },
+    // 分难度等级
+    hanldLevel(num){
+      this.level = num;
+      this.keyword="";
+      this.loadList();
     },
      // 这下面配了一个取消终止的方法
     cancelRequest(){
@@ -106,6 +91,14 @@ export default {
       if(this.type!=-1){
         // 原地址+类型
         requestURL=requestURL+"?type="+this.type;
+      }
+
+      //难度
+      if(this.type!=-1 && this.level){
+        // 原地址+类型
+        requestURL=requestURL+"&level="+this.level;
+      }else if(this.level){
+        requestURL=requestURL+"?level="+this.level;
       }
       //keyword 搜索关键词
       if(this.keyword){
@@ -136,13 +129,13 @@ export default {
           this.pages.limit=12;
         }
       }).catch((err) => {
-                if (this.axios.isCancel(err)) {
-                    console.log('Rquest canceled', err.message); //请求如果被取消，这里是返回取消的message
-                } else {
-                    //handle error
-                    console.log(err);
-                }
-            })
+          if (this.axios.isCancel(err)) {
+              console.log('Rquest canceled', err.message); //请求如果被取消，这里是返回取消的message
+          } else {
+              //handle error
+              console.log(err);
+          }
+      })
     }
   },
 

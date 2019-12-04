@@ -6,8 +6,8 @@ import axios from 'axios'
 import VueI18n from 'vue-i18n'
 
 
+axios.defaults.withCredentials=true;
 Vue.prototype.axios = axios;
-
 
 Vue.use(VueI18n)
 const i18n = new VueI18n({

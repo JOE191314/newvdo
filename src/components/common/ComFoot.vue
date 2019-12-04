@@ -22,7 +22,7 @@ export default {
 </script>
 
 <style scoped>
-.footer{margin: 48px 0 0 0;width: 100%;height: 239px;position: relative;background: url(~assets/images/footbg.png);}
+.footer{margin: 48px 0 0 0;width: 100%;height: 239px;position: relative;background: url(~assets/images/footbg.png);overflow: hidden;clear: both;}
 .footer .text{font-size: 16px;text-align: center;color: #fff;padding: 47px 0 41px 0;}
 .footer .link{width: 260px;margin: 0 auto;height: 44px;}
 .footer .link a{display: block;}
