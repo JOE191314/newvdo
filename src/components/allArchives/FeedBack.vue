@@ -31,7 +31,7 @@
       <div class="h3">联系方式（方便我们尽快为您解决问题）</div>
       <input type="text" placeholder="Email/手机">   
       <div class="clear"></div>
-      <div class="setbtn">发送</div>
+      <div class="setbtn" @click="SendOut">发送</div>
   </div>
 </template>
 
@@ -64,12 +64,8 @@ export default {
     //   })
     // },
     handleSuccess(response, file, fileList){
-      console.log("imgfile:"+response.data.fileUrl);
+      // console.log("imgfile:"+response.data.fileUrl);
       this.imgFile.push(response.data.fileUrl);
-      // console.log("imgFile.push:"+this.imgFile[0]);
-      // for(var i=0;i<this.imgFile.length;i++){
-      //   console.log("imgFile["+i+"]:"+this.imgFile[i]);
-      // }
       console.log(this.imgFile);
 
     },
@@ -79,6 +75,33 @@ export default {
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
+    },
+    SendOut(){
+      let feedBackData = {
+        "contact": "string",
+        "content": "string",
+        "createTime": "string",
+        "fileJson": {
+          "content": [
+            {
+              "fileUrl": "http://106.52.102.224:9084/app"+this.imgFile,
+              "type": 0
+            }
+          ]
+        },
+        "id": 0,
+        "nickname": "string",
+        "processingTime": "string",
+        "questionType": 0,
+        "sourceType": 0,
+        "status": 0,
+        "userId": "string",
+        "useraccount": "string"
+      }
+     // http:106.52.102.224:9084/app/feedback/save
+      this.axios.post(config.weburl+'/feedback/save',feedBackData).then(res=>{
+        console.log(res)
+      })
     }
   }
 }

@@ -6,7 +6,12 @@
       <dt>开通题库:</dt>
       <dd>
         <select name="" id="">
-          <option value=""></option>
+          <option value="">S1</option>
+          <option value="">S2</option>
+          <option value="">S3</option>
+          <option value="">S4</option>
+          <option value="">S5</option>
+          <option value="">S6</option>
         </select>
       </dd>
       <dt>开通时长</dt>
@@ -91,8 +96,8 @@ export default {
 .vipContent dl dt{float: left;width: 130px;font-size: 20px;color: #565656;height: 42px;line-height: 42px;}
 .vipContent dl dd{width: 800px;float: left;margin: 0 0 55px;}
 .vipContent dl dd span{width: 800px;float: left;height: 42px;line-height: 42px;font-size: 20px;color: #565656;}
-.vipContent dl dd select{width: 127px;height: 40px;float: left;border: 1px solid #cccccc;font-size: 24px;text-align: center;line-height: 40px;}
-.vipContent dl dd select option{color: #333;}
+.vipContent dl dd select{width: 127px;height: 40px;float: left;border: 1px solid #cccccc;font-size: 24px;text-align: center;line-height: 40px;color: #666;outline: none}
+.vipContent dl dd select option{color: #666;}
 .vipContent dl dd .card{width: 185px;height: 130px;border: 2px solid #3cdfa5;border-radius: 8px;float: left;margin: 0 45px 0 0;position: relative;overflow: hidden;}
 .vipContent dl dd .card .nun{font-size: 15px;color: #49e7a3;margin: 38px 0 0 45px;float: left;font-weight: 700;}
 .vipContent dl dd .card .text{float: left;font-size: 32px;margin: 20px 0 0 15px;color: #49e7a3;font-weight: 700;}

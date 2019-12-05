@@ -17,19 +17,45 @@
         </ul>
       </div>
       <!-- 登录 -->
-     <router-link tag="div" to="/archives" class="login" v-if="loginData.status==200">
-        <p><el-button type="text">{{ loginDataUsername }}</el-button></p>
+    <!-- <div class="login" @click="alerMeun(e)" v-if="loginData.status==200">
+        <p @click="loginout"><el-button type="text">{{ loginDataUsername }}</el-button></p>
         <img src="~assets/images/index_login.png" alt="">
-     </router-link>
+          <!-- 弹出菜单框 -->
+        <!-- <div class="menu" v-show="showmenu">
+          <router-link tag="div" to="/archives" >个人中心</router-link> 
+          <div>退出登录</div>
+        </div>
+      </div>  -->
+    
+        
+
+      <div class="login" v-if="loginData.status==200">
+        <p>
+
+        <el-dropdown>
+          <span class="el-dropdown-link">
+            <router-link tag="div" to="/archives" class="loginOut">{{ loginDataUsername }}</router-link><i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item><router-link tag="div" to="/archives" class="loginOut">个人中心</router-link></el-dropdown-item>
+            <el-dropdown-item><div class="loginOut" @click="loginout" v-show="showloginOut">退出登录</div></el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        </p>
+        <img src="~assets/images/index_login.png" alt="">
+     </div> 
+
       <div class="login" v-else>
         <p><el-button type="text" @click="dialogVisibleLogin = true">Log In</el-button></p>
         <img src="~assets/images/index_login.png" alt="">
       </div>
+     
+        
       <!-- 语言控制 -->
       <div class="language">
-        <span class="en">EN</span><em>|</em>
-        <span class="numerous">繁</span><em>|</em>
-        <span class="simple">简</span>
+        <span class="en" @click="changeLanguageEn">EN</span><em>|</em>
+        <span class="numerous" @click="changeLanguageNs">繁</span><em>|</em>
+        <span class="simple" @click="changeLanguageZh">简</span>
       </div>
       <div class="clear"></div>
     </div>
@@ -43,9 +69,25 @@
           <div class="text">还没有账号，立即 <span><el-button type="text" @click="dialogVisibleLogin = false;dialogVisibleRegister=true">&nbsp;注册</el-button></span></div>
         </div>
         <div class="input">
-          <div class="mailbox">
+          <!-- <div class="mailbox" v-if="false">
             <img src="~assets/images/login/loginMail.png" alt="">
             <input type="text" placeholder="请输入你的电邮" v-model="loginEmail">
+          </div> -->
+          <div class="mailbox">
+            <img src="~assets/images/login/loginMail.png" alt="">
+            <el-popover
+                close-delay="2"
+                placement="bottom-end"
+                title=""
+                width="274"
+                trigger="click"
+                content="">
+                <!-- :value = false -->
+                <div class="loginoutCacheEmil" >{{ loginEmail }}</div>
+                <el-button slot="reference" class="loginoutCache">
+                  <input type="text" placeholder="请输入你的电邮" v-model="loginEmail">
+                </el-button>
+              </el-popover>
           </div>
           <div class="Password">
             <img src="~assets/images/login/LOCK.png" alt="" class="lock">
@@ -156,6 +198,7 @@ export default {
   },
   data(){
     return {
+      visible: false,//弹出菜单
       keyword: '',//搜索框
       dialogVisibleLogin: false,//登录
       dialogVisibleRegister: false,//注册
@@ -178,12 +221,16 @@ export default {
       loginData: {//登录后的返回值
         status:0//登录状态
         },
+      loginDataUseId: '',//登录后的返回的id
       loginDataUsername: '',//登录后的返回值的邮箱
       passwordCode: '',//找回密码验证码
       ForgetPassworduserId: '',//找回密码验证码返回的userId
       ForgetPasswordBefor: '',//找回密码输入新密码
       ForgetPasswordAfter: '',//找回密码输入新密码
       showForgetPassword: false,//找回密码页面显示密码
+      showloginOut: true,//退出登录显示状态
+      showLoginoutCacheEmil: true,//缓存之前所用过的邮箱显示与否
+      showmenu: false
       
       
       
@@ -191,7 +238,8 @@ export default {
     }
   },
   created(){
-
+    localstorage.set("loginEmail",this.loginEmail);
+  this.loginDataUseId=localstorage.get("loginEmail");
    
   },
   methods: {
@@ -204,14 +252,17 @@ export default {
     dialogVisibleLoginSubmit(){
      // http:106.52.102.224:9084/app/user/login?password=123&username=aaa
        this.axios.post(config.weburl+'/user/login?'+'password='+this.loginPwd+'&username='+this.loginEmail).then(res => {
-          console.log(res.data.message);
+          console.log(res);
           if(res.data.status==200){
             this.loginData = res;
             this.loginDataUsername = res.data.data.username;
+            this.loginDataUseId = res.data.data.id;
+            // console.log(this.loginDataUseId);
 
             //使用localstorage保存登录状态
             localstorage.set("loginData.status",this.loginData.status);
             localstorage.set("loginDataUsername",this.loginDataUsername);
+            localstorage.set("loginDataUseId",this.loginDataUseId);
             // this.showAlert = true
             // this.alertText = "恭喜，登录成功！";
             this.dialogVisibleLogin = false;
@@ -391,10 +442,48 @@ export default {
     closeTip(){
       this.showAlert = false
     },
-    // 创建账户
-    createAccount(){
-
+    //退出登录
+    loginout(){
+      // alert(localstorage.get("loginDataUseId"));
+      //http:106.52.102.224:9084/app/me/exit/331404948%40qq.com
+      this.axios.get(config.weburl+'/me/exit/'+localstorage.get("loginDataUseId")).then(res=>{
+        console.log(res)
+        //清除用户登录信息
+        localstorage.remove("loginData.status")
+        localstorage.remove("loginDataUsername")
+        localstorage.remove("loginDataUseId")
+        this.showloginOut = false;
+        // location.reload();
+        this.$router.push({path:"/"});
+      })
+        
+    },
+    //http:106.52.102.224:9084/app/me/language/2098/1
+    changeLanguageEn(){
+      this.axios.post(config.weburl+"/me/language/"+this.loginDataUseId+"/3").then(res=>{
+        console.log('res+'+res)
+      })
+    },
+    changeLanguageNs(){
+      this.axios.post(config.weburl+"/me/language/"+this.loginDataUseId+"/2").then(res=>{
+        console.log('res+'+res)
+      })
+    },
+    changeLanguageZh(){
+      this.axios.post(config.weburl+"/me/language/"+this.loginDataUseId+"/1").then(res=>{
+        console.log('res+'+res)
+      })
+    },
+    alerMeun(e){
+      this.showmenu = !this.showmenu
+      
+      e = e || window.e;
+      e.stopPropagation(); 
+      return false
     }
+    // showLoginoutEmil(){
+    //   this.showLoginoutCacheEmil = !this.showLoginoutCacheEmil
+    // }
   },
   computed: {
     right_email(){
@@ -410,15 +499,28 @@ export default {
   //    alert(val)
   //  }else{
   //    localstorage.set("email",name);
-  //    alert("设置成功")
+  //    alert("设置成功")loginDataUseId
   //  }
   this.loginData.status=localstorage.get("loginData.status");
   this.loginDataUsername=localstorage.get("loginDataUsername");
+  this.loginDataUseId=localstorage.get("loginDataUseId");
+
   }
 }
 </script>
+<style>
+
+</style>
 
 <style scoped>
+/* 登录退出菜单 */
+.el-button.loginoutBtnBg{color: #53d2ac;background: #fafafa;margin: 0 0 0 -20px;border: none;cursor: pointer;}
+.loginOut{width: 100%;height: 30px;line-height: 30px;text-align: center;}
+.loginOut:hover{background: #fafafa;}
+
+.loginoutCache{width: 100%;border: none;background: none;margin: 0 0 0 -20px;}
+.loginoutCacheEmil{width: 100%;height: 43px;line-height: 43px;border-bottom: 1px solid #ccc;}
+
 .g_head{width: 100%; height: 83px;background: #fafafa;}
 .g_head .logo{float: left;margin: 20px 0 0 0;cursor: pointer;}
 .g_head .logo a{float: left;}
@@ -435,9 +537,16 @@ export default {
 .g_head .language .en{color: #45a25d;}
 .g_head .language .numerous{color: #231815;}
 .g_head .language .simple{color: #231815;}
-.g_head .login{margin: 33px 0 0 0;float: right;cursor: pointer;width: 120px;}
+.g_head .login{margin: 33px 0 0 0;float: right;cursor: pointer;width: 120px;position: relative;}
 .g_head .login img{width: 11px;height: 17px;float: right;margin: 0 10px 0 0;}
 .g_head .login p{font-size: 17px;color: #303030;float: right;margin: -10px 0 0 0;max-width: 98px;text-align: right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height: 32px;}
+/* .g_head .login p{width: 100%;display: block} */
+
+/* 退出登录入口 */
+.menu{width: 174px;position: absolute;top:30px;left: 30px;height: 98px;box-shadow: 0px 0px 8px rgba(100,100,100,0.2);background: #fff;border-radius: 6px;
+color: #606266;position: absolute;top: 42px;left: 0;}
+.menu div{font-size: 14px; color: #333;height: 42px;text-align: center;cursor: pointer;margin: 12px 12px; line-height: 30px;width: 150px;height: 30px;}
+.menu div:hover{background: #fafafa;}
 
 
 /* 登录 */
@@ -515,4 +624,13 @@ export default {
  .registerSuccess .successbtn .changeColor{color: #fff;font-size: 17px;}
 
 
+</style>
+<style>
+  .el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+  }
+  .el-icon-arrow-down {
+    font-size: 12px;
+  }
 </style>

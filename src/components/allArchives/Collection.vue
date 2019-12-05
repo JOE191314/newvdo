@@ -64,7 +64,7 @@
       </ul>
       <div class="clear"></div>
     </div>
-    <Page></Page>
+    <Page class="hiddent"></Page>
   </div>
 </template>
 
@@ -86,6 +86,7 @@ export default {
 </script>
 
 <style scoped>
+.hiddent{clear: both;overflow: hidden;}
 .index_videoList{margin: 48px 0 0 54px;float: left;width: 1024px;height: 880px;overflow: hidden;}
 .index_videoList ul{float: left;}
 .index_videoList ul li{float: left;margin: 0 24px 44px 0;width: 270px;height: 260px;border: 1px solid #eaeaea;}

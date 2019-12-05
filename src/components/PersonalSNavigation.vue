@@ -11,7 +11,10 @@
       </div>
       <div class="useinfoBoxTwo">
         <div class="text">EXP</div>
-        <div class="expimg"><img src="~assets/images/archives_img/exp1.png" alt=""></div>
+        <div class="expimg">
+          <ProgressBar class="ProgressBar"></ProgressBar>
+          <!-- <img src="~assets/images/archives_img/exp1.png" alt=""> -->
+          </div>
       </div>
       <div class="useinfoBoxThree">
         <div class="vipimg">vip4</div>
@@ -34,7 +37,12 @@
 </template>
 
 <script>
+import ProgressBar from 'components/ProgressBar/Exp'
+ import config from "@/config/index.js"
 export default {
+  components: {
+    ProgressBar
+  },
   data(){
     return {
       num: 7
@@ -46,12 +54,19 @@ export default {
       // console.log(num)
       this.$emit('tabControl', num);
       // this.obj.a = 100;
-    }
+    },
+  },
+  mounted(){
+   // http:106.52.102.224:9084/app/me/myBambooValue/2060
+    this.axios.get(config.weburl+'/me/myBambooValue/'+ '2060').then(res=>{
+      console.log(res)
+    })
   }
 }
 </script>
 
 <style scoped>
+.ProgressBar{margin: 4px 0 0 0;}
 .archives_subnav{width: 344px;height: 994px;background: #53d2ac;float: left;}
 .archives_subnav .tit{float: left;padding: 40px 0 0 20px;}
 .archives_subnav .tit .useinfoBoxOne{float: left;}

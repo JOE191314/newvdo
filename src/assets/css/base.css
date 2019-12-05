@@ -31,3 +31,4 @@ b{ font-weight:400;}
 .yahei{ font-family:"微软雅黑";}
 input.text{ border:#ccc 1px solid; height:22px; line-height:22px; padding:0 5px; color:#666;font-family:Verdana, Geneva, sans-serif;}
 input.checkbox{ vertical-align:middle;}
+input{background: #fff;}

@@ -91,6 +91,7 @@
 
 <script>
 import config from "@/config/index.js"
+import localstorage from "@/tool/localstorage.js"
 export default {
   porps: {
 
@@ -133,7 +134,8 @@ export default {
   },
   mounted(){
    //http:106.52.102.224:9084/app/me/saveInformation
-   
+     localstorage.set("useName",this.useName);
+    this.useName=localstorage.get("useName");
   }
 }
 </script>

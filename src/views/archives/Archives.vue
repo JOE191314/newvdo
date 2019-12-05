@@ -1,17 +1,17 @@
 <template>
   <div id="archives">
     <ComHead></ComHead>
-    <PersonalSNavigation @tabControl="tabControls"></PersonalSNavigation>
-    <Ranking v-show="showTab==1"></Ranking>
-    <MyData v-show="showTab==2"></MyData>
-    <NewWords v-show="showTab==3"></NewWords>
-    <ErrorBook v-show="showTab==4"></ErrorBook>
-    <Collection v-show="showTab==5"></Collection>
-    <Vip v-show="showTab == 6"></Vip>
-    <SetUp v-show="showTab==7"></SetUp>
-    <FeedBack v-show="showTab==8"></FeedBack>
-    <ComFoot></ComFoot>
-    
+    <keep-alive><PersonalSNavigation @tabControl="tabControls"></PersonalSNavigation></keep-alive>
+    <keep-alive><Ranking v-show="showTab==1"></Ranking></keep-alive>
+    <keep-alive><MyData v-show="showTab==2"></MyData></keep-alive>
+    <keep-alive><NewWords v-show="showTab==3"></NewWords></keep-alive>
+    <keep-alive><ErrorBook v-show="showTab==4"></ErrorBook></keep-alive>
+    <keep-alive><Collection v-show="showTab==5"></Collection></keep-alive>
+    <keep-alive><Vip v-show="showTab == 6"></Vip></keep-alive>
+    <keep-alive><SetUp v-show="showTab==7"></SetUp></keep-alive>
+    <keep-alive><FeedBack v-show="showTab==8"></FeedBack></keep-alive>
+    <keep-alive><ComFoot></ComFoot></keep-alive>
+
   </div>
 </template>
 
@@ -27,6 +27,8 @@ import SetUp from 'components/allArchives/SetUp'
 import Vip from 'components/allArchives/Vip'
 import ComHead from 'common/ComHead'
 import ComFoot from 'common/ComFoot'
+import localstorage from "@/tool/localstorage.js"
+
 export default {
   components: {
     PersonalSNavigation,
@@ -53,6 +55,14 @@ export default {
       this.showTab = num;
       console.log(this.showTab)
     },
+  },
+  beforeCreate(){
+    //判断登录状态
+    var loginDataUseId=localstorage.get("loginDataUseId");
+    //如果loginDataUseId不存在，则表示当前不在登录状态，跳转至首页
+    if(!loginDataUseId){
+      this.$router.push({path:"/"});
+    }
   }
 }
 </script>
